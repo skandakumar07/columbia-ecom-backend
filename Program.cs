@@ -90,11 +90,20 @@ builder.Services.AddMemoryCache();
 var app = builder.Build();
 
 // 🌐 Swagger for development
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "EcommerceTrail API v1");
+    c.RoutePrefix = "swagger"; // Optional: makes Swagger available at /swagger
+});
+
+
 
 app.UseCors("AllowFrontend");
 
