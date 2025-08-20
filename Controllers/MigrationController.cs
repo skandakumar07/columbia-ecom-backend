@@ -28,7 +28,7 @@ public class MigrationController : ControllerBase
         foreach (var user in users)
         {
             // Check if password is already hashed (basic check, adjust as needed)
-            if (!user.PasswordHash.StartsWith("$"))
+            if (!user.PasswordHash.StartsWith("A"))
             {
                 user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
                 updatedCount++;

@@ -18,17 +18,17 @@ public class AuthService
         _cache = cache;
     }
 
-    public string GenerateJwtToken(string email)
+    public string GenerateJwtToken(string email, string typeofuser)
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+        new Claim(JwtRegisteredClaimNames.Email, email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.Role, typeofuser) // Add role claim
+    };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
         var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.LifespanMinutes);
 
         var token = new JwtSecurityToken(
@@ -40,12 +40,11 @@ public class AuthService
         );
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-        // Store token in memory with expiration
         _cache.Set(email, tokenString, expiration);
 
         return tokenString;
     }
+
 
     public bool IsTokenValid(string email, string token)
     {

@@ -15,11 +15,7 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
+    public string Typeofuser { get; set; } = null!;
+
     public virtual ICollection<AddressBook> AddressBooks { get; set; } = new List<AddressBook>();
-
-    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
-
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
-    public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

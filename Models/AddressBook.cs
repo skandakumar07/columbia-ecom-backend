@@ -23,7 +23,5 @@ public partial class AddressBook
 
     public string? Country { get; set; }
 
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
     public virtual User? Users { get; set; }
 }

@@ -13,7 +13,7 @@ namespace EcommerceTrail.Controllers
     [Route("api/[controller]")]
     [ApiController]
 
-    
+
     public class UserController : ControllerBase
     {
         private readonly EcomContext _context;
@@ -25,32 +25,32 @@ namespace EcommerceTrail.Controllers
             _context = context;
             _authService = authService;
         }
-        
+
 
 
         [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto register)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == register.Email);
-        if (user != null)
+        public async Task<IActionResult> Register([FromBody] RegisterDto register)
         {
-            return BadRequest("User already present");
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == register.Email);
+            if (user != null)
+            {
+                return BadRequest("User already present");
+            }
+
+            var passwordHasher = new PasswordHasher<User>();
+            var newUser = new User
+            {
+                Username = register.Username,
+                Email = register.Email
+            };
+
+            newUser.PasswordHash = passwordHasher.HashPassword(newUser, register.PasswordHash);
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            return Ok("User registered successfully.");
         }
-
-        var passwordHasher = new PasswordHasher<User>();
-        var newUser = new User
-        {
-            Username = register.Username,
-            Email = register.Email
-        };
-
-        newUser.PasswordHash = passwordHasher.HashPassword(newUser, register.PasswordHash);
-
-        _context.Users.Add(newUser);
-        await _context.SaveChangesAsync();
-
-        return Ok("User registered successfully.");
-    }
 
 
 
@@ -71,11 +71,12 @@ namespace EcommerceTrail.Controllers
                 return Unauthorized("Invalid credentials");
             }
 
-            var token = _authService.GenerateJwtToken(user.Email);
+            var token = _authService.GenerateJwtToken(user.Email, user.Typeofuser);
             return Ok(new { token });
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
+
 
         [HttpGet("GetUsers")]
         public async Task<ActionResult<IEnumerable<UserData>>> GetUser()
@@ -95,9 +96,9 @@ namespace EcommerceTrail.Controllers
         }
 
         [Authorize]
-    [HttpPatch("ResetPassword")]
-    public async Task<ActionResult> ResetPassword(ResetPassword res)
-    {
+        [HttpPatch("ResetPassword")]
+        public async Task<ActionResult> ResetPassword(ResetPassword res)
+        {
             var user = await _context.Users.SingleOrDefaultAsync(a => a.Email == res.Email);
             if (user == null)
             {
@@ -115,15 +116,13 @@ namespace EcommerceTrail.Controllers
             user.PasswordHash = passwordHasher.HashPassword(user, res.NewPassword);
             await _context.SaveChangesAsync();
 
-            _authService.ExpireToken(user.Email); // Invalidate old token
+            _authService.ExpireToken(user.Email); 
 
-            var newToken = _authService.GenerateJwtToken(user.Email); // Issue new token
+            var newToken = _authService.GenerateJwtToken(user.Email, user.Typeofuser); 
 
             return Ok(new { token = newToken });
 
         }
-
-
 
 
 
