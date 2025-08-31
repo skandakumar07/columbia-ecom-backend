@@ -116,9 +116,11 @@ namespace EcommerceTrail.Controllers
             user.PasswordHash = passwordHasher.HashPassword(user, res.NewPassword);
             await _context.SaveChangesAsync();
 
-            _authService.ExpireToken(user.Email); // Invalidate old token
+            _authService.ExpireToken(user.Email); 
 
-            var newToken = _authService.GenerateJwtToken(user.Email, user.Typeofuser); // Issue new token
+
+            var newToken = _authService.GenerateJwtToken(user.Email, user.Typeofuser); 
+
 
             return Ok(new { token = newToken });
 
