@@ -118,7 +118,9 @@ namespace EcommerceTrail.Controllers
 
             _authService.ExpireToken(user.Email); 
 
+
             var newToken = _authService.GenerateJwtToken(user.Email, user.Typeofuser); 
+
 
             return Ok(new { token = newToken });
 
